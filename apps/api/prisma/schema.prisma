@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+enum Role {
+  LISTENER
+  ARTIST
+  ADMIN
+}
+enum ReleaseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+model User {
+ id String @id @default(cuid())
+ email String @unique
+ passwordHash String
+ name String
+ role Role @default(LISTENER)
+ createdAt DateTime @default(now())
+ artist Artist?
+ playlists Playlist[]
+ demoTransactions DemoTransaction[]
+}
+model Artist {
+ id String @id @default(cuid())
+ userId String @unique
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ stageName String
+ bio String @default("")
+ tracks Track[]
+ demoTransactions DemoTransaction[]
+}
+model Track {
+ id String @id @default(cuid())
+ title String
+ genre String @default("Other")
+ audioPath String
+ mimeType String
+ originalName String
+ coverUrl String?
+ status ReleaseStatus @default(PENDING)
+ createdAt DateTime @default(now())
+ artistId String
+ artist Artist @relation(fields:[artistId],references:[id],onDelete:Cascade)
+ playlistTracks PlaylistTrack[]
+ demoTransactions DemoTransaction[]
+}
+model Playlist {
+ id String @id @default(cuid())
+ name String
+ userId String
+ user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+ tracks PlaylistTrack[]
+ createdAt DateTime @default(now())
+}
+model PlaylistTrack {
+ playlistId String
+ trackId String
+ addedAt DateTime @default(now())
+ playlist Playlist @relation(fields:[playlistId],references:[id],onDelete:Cascade)
+ track Track @relation(fields:[trackId],references:[id],onDelete:Cascade)
+ @@id([playlistId,trackId])
+}
+
+
+// Phase 2: DEMO-only financial events. No external payments or payouts.
+enum DemoTransactionKind {
+  TIP
+  PURCHASE
+}
+model DemoTransaction {
+ id String @id @default(cuid())
+ kind DemoTransactionKind
+ amountCents Int
+ currency String @default("ZAR")
+ artistId String
+ artist Artist @relation(fields:[artistId],references:[id],onDelete:Restrict)
+ buyerId String
+ buyer User @relation(fields:[buyerId],references:[id],onDelete:Restrict)
+ trackId String?
+ track Track? @relation(fields:[trackId],references:[id],onDelete:SetNull)
+ createdAt DateTime @default(now())
+ @@index([artistId,createdAt])
+ @@index([buyerId,createdAt])
+}

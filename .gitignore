@@ -1,0 +1,31 @@
+cat >> .gitignore <<'EOF'
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment variables and secrets
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# Build files
+.next/
+dist/
+build/
+coverage/
+
+# Local logs
+*.log
+npm-debug.log*
+
+# macOS
+.DS_Store
+
+# Uploaded music and private files
+uploads/
+**/uploads/
+EOF

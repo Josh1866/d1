@@ -1,0 +1,17 @@
+{
+  "name": "d1-mvp",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm run dev -w @d1/api\" \"npm run dev -w @d1/web\"",
+    "build": "npm run build -w @d1/api && npm run build -w @d1/web",
+    "db:generate": "npm run prisma:generate -w @d1/api",
+    "db:migrate": "npm run prisma:migrate -w @d1/api",
+    "db:seed": "npm run seed -w @d1/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.5"
+  }
+}
